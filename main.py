@@ -4,14 +4,14 @@ from tkinter import *
 from tkinter.ttk import *
 
 # Determine script directory and set icon and sound path
-path = str(pathlib.Path(__file__).parent.absolute())
-theme_loc = path + "\\icons\\"
-sound_loc = path + "\\sounds\\"
+path = pathlib.Path(__file__).parent.absolute()
+theme_loc = path / "icons"
+sound_loc = path / "sounds"
 
 # Setup tkinter gui with title and icon
 window = Tk()
 window.wm_title("Minesweeper")
-window.iconbitmap(path+"\\logo.ico")
+#window.iconbitmap(str(path / "logo.ico"))
 
 window.geometry('250x250')
 
@@ -63,7 +63,7 @@ def destroy():
     global size
     global num_mines
     global sqrPx
-    
+
     sqrPx = int(pixels.get())
     if selection == "Custom":
         try:
@@ -106,7 +106,7 @@ def get_neighbors(x, y, width, height):
                 result.append([x+i, y+j])
     return result
 
-# Square object, essentially a struct with constructor 
+# Square object, essentially a struct with constructor
 class square:
     def __init__(self, x, y, bomb=False, flag=False, revealed=False, near=0):
         self.x = x
@@ -131,7 +131,7 @@ def flood_fill(square, squares):
                 sqr = squares[node[0]][node[1]]
                 if sqr.near == 0 and not sqr.rev:
                     stack.append(sqr)
-                
+
                 sqr.rev = True
 
     return 1
@@ -147,7 +147,7 @@ def gen_flood_fill(square, squares):
             sqr = squares[node[0]][node[1]]
             if sqr.near == 0 and not sqr.rev:
                 stack.append(sqr)
-            
+
             if not sqr.mine:
                 sqr.rev = True
 
@@ -157,7 +157,7 @@ def gen_flood_fill(square, squares):
 pygame.init()
 
 # Set window details, dynamically determine window size
-logo = pygame.transform.scale(pygame.image.load(theme_loc + "logo.png"), (sqrPx, sqrPx))
+logo = pygame.transform.scale(pygame.image.load(str(theme_loc / "logo.png")), (sqrPx, sqrPx))
 pygame.display.set_icon(logo)
 pygame.display.set_caption("Minesweeper")
 screen = pygame.display.set_mode((size[0] * sqrPx, size[1] * sqrPx))
@@ -165,25 +165,25 @@ screen = pygame.display.set_mode((size[0] * sqrPx, size[1] * sqrPx))
 # Load all the number squares into a list
 number_img = []
 for i in range(8):
-    number_img.append(pygame.transform.scale(pygame.image.load(theme_loc + f"mine{i+1}.png"), (sqrPx, sqrPx)) )
+    number_img.append(pygame.transform.scale(pygame.image.load(str(theme_loc / f"mine{i+1}.png")), (sqrPx, sqrPx)) )
 
 # Load other graphics, the icon and other square states
-mine_img = pygame.transform.scale(pygame.image.load(theme_loc + "mine.png"), (sqrPx, sqrPx))
-tilebase_img = pygame.transform.scale(pygame.image.load(theme_loc + "tilebase.png"), (sqrPx, sqrPx))
-unmarked_img = pygame.transform.scale(pygame.image.load(theme_loc + "unmarked.png"), (sqrPx, sqrPx))
-flag_img = pygame.transform.scale(pygame.image.load(theme_loc + "flag.png"), (sqrPx, sqrPx))
-hit_img = pygame.transform.scale(pygame.image.load(theme_loc + "hit.png"), (sqrPx, sqrPx))
+mine_img = pygame.transform.scale(pygame.image.load(str(theme_loc / "mine.png")), (sqrPx, sqrPx))
+tilebase_img = pygame.transform.scale(pygame.image.load(str(theme_loc / "tilebase.png")), (sqrPx, sqrPx))
+unmarked_img = pygame.transform.scale(pygame.image.load(str(theme_loc / "unmarked.png")), (sqrPx, sqrPx))
+flag_img = pygame.transform.scale(pygame.image.load(str(theme_loc / "flag.png")), (sqrPx, sqrPx))
+hit_img = pygame.transform.scale(pygame.image.load(str(theme_loc / "hit.png")), (sqrPx, sqrPx))
 
 # Load sound files
-click_sound = pygame.mixer.Sound(sound_loc + "click.wav")
-flag_sound = pygame.mixer.Sound(sound_loc + "flag.wav")
+click_sound = pygame.mixer.Sound(str(sound_loc / "click.wav"))
+flag_sound = pygame.mixer.Sound(str(sound_loc / "flag.wav"))
 flag_sound.set_volume(0.8)
-unflag_sound = pygame.mixer.Sound(sound_loc + "unflag.wav")
-gameOver_sound = pygame.mixer.Sound(sound_loc + "gameOver.ogg")
+unflag_sound = pygame.mixer.Sound(str(sound_loc / "unflag.wav"))
+gameOver_sound = pygame.mixer.Sound(str(sound_loc / "gameOver.ogg"))
 gameOver_sound.set_volume(0.5)
-gameWin_sound = pygame.mixer.Sound(sound_loc + "gameWin.ogg")
+gameWin_sound = pygame.mixer.Sound(str(sound_loc / "gameWin.ogg"))
 gameWin_sound.set_volume(0.5)
-music = sound_loc + "music.ogg"
+music = str(sound_loc / "music.ogg")
 
 # Main function
 def main():
@@ -201,7 +201,7 @@ def main():
         squares.append(temp)
 
     mines = []
-    
+
     # Bool to control the main loop
     running = True
 
@@ -228,7 +228,7 @@ def main():
 
                         squares[sqr[0]][sqr[1]].flag = not squares[sqr[0]][sqr[1]].flag
 
-                    # Left click      
+                    # Left click
                     if mouse_type[0]:
                         # We generate the board here on first click so you can't immediately die
                         if not generated:
@@ -241,7 +241,7 @@ def main():
                                     squares[choosen[0]][choosen[1]].mine = True
                                     for i in get_neighbors(choosen[0], choosen[1], size[0], size[1]):
                                         squares[i[0]][i[1]].near += 1
-                            
+
                             # Perform special flood fill and set flag as generated
                             gen_flood_fill(squares[sqr[0]][sqr[1]], squares)
                             generated = True
@@ -262,11 +262,11 @@ def main():
                                     screen.blit(mine_img, (mine[0]*sqrPx, mine[1]*sqrPx))
                                     pygame.display.update()
                                     time.sleep(0.02)
-                                
+
                                 # Reveal the mine they clicked with special image
                                 screen.blit(hit_img, (sqr[0]*sqrPx, sqr[1]*sqrPx))
                                 pygame.display.update()
-                                
+
                                 # Query user with tkinter for restart
                                 if messagebox.askyesno("Restart","Do you want to restart?"):
                                     main()
@@ -302,7 +302,7 @@ def main():
                     else:
                         screen.blit(unmarked_img, (j.x*sqrPx, j.y*sqrPx))
             pygame.display.update()
-        
+
             # Determine the number of squares revealed
             sm = sum([sum([int(j.rev and not j.mine) for j in i]) for i in squares])
 
@@ -318,6 +318,6 @@ def main():
                 if messagebox.askyesno("You Win!","Congradulations, you won!\nDo you want to restart?"):
                     main()
                 sys.exit()
-     
+
 if __name__=="__main__":
     main()
